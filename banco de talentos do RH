@@ -1,0 +1,61 @@
+const fs = require('fs');
+const readline = require('readline');
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+function solicitarDados(callback) {
+    rl.question('Digite seu nome: ', (nome) => {
+        rl.question('Digite sua idade: ', (idade) => {
+            rl.question('Digite seu telefone: ', (telefone) => {
+                rl.question('Digite seu endereço: ', (endereco) => {
+                    rl.question('Digite sua profissão: ', (profissao) => {
+                        callback({ nome, idade, telefone, endereco, profissao });
+                    });
+                });
+            });
+        });
+    });
+}
+
+function criarPasta(pasta) {
+    if (!fs.existsSync(pasta)) {
+        fs.mkdirSync(pasta, { recursive: true });
+    }
+}
+
+function salvarDados(dados) {
+    try {
+        criarPasta('Currículos');
+        const pastaProfissao = `Currículos/${dados.profissao}`;
+        criarPasta(pastaProfissao);
+
+        const arquivo = `${pastaProfissao}/${dados.nome}.txt`;
+        const conteudo = `Nome: ${dados.nome}\nIdade: ${dados.idade}\nTelefone: ${dados.telefone}\nEndereço: ${dados.endereco}\nProfissão: ${dados.profissao}\n`;
+
+        fs.writeFileSync(arquivo, conteudo);
+        console.log(`Dados de ${dados.nome} salvos com sucesso em ${arquivo}.`);
+    } catch (error) {
+        console.error(`Erro ao salvar os dados: ${error.message}`);
+    }
+}
+
+function main() {
+    let count = 0;
+    function loop() {
+        if (count < 5) {
+            solicitarDados((dados) => {
+                salvarDados(dados);
+                count++;
+                loop();
+            });
+        } else {
+            rl.close();
+        }
+    }
+    loop();
+}
+
+main();
